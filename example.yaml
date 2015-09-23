@@ -26,8 +26,4 @@
       }
   independent_variables:
     - header: {name: x1, units: GeV}
-      conversion: {
-        formatter: bin_format,
-        formatter_args: {style: 'central_value'}
-      }
     - header: {name: x2, units: MeV}
