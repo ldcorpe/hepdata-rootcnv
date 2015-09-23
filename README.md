@@ -4,6 +4,7 @@ Flexible ROOT conversion. Example:
 
     hepdata-rootcnv convertROOT.yaml 
 
+###Example
 
     - name: MyName
       dependent_variables:
