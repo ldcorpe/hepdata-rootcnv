@@ -2,13 +2,16 @@
 
 import ROOT
 import yaml
+import os
 
 from hepdatarootcnv import convertROOT, formatters
 import click
 
 @click.command()
 @click.argument('inputfile')
-def converter(inputfile):
+@click.option('-d','--workdir',default = None, help = 'change working directory (relative to which inputs are defined)')
+def converter(inputfile,workdir):
+  
   files_cache,objects_cache = {},{}
   def get_root_object(identifiers):
     if identifiers in objects_cache:
@@ -23,6 +26,11 @@ def converter(inputfile):
     return get_root_object(identifiers)
   
   data = yaml.load(open(inputfile))
+
+  original_dir = os.path.abspath(os.curdir)
+  if workdir:
+    os.chdir(os.path.abspath(workdir))
+
   converted_data = []
   for table in data:
     for dep in table['dependent_variables']:
@@ -35,6 +43,7 @@ def converter(inputfile):
 
     converted_data += [convertROOT(table)]
   
+  os.chdir(original_dir)
   for i,data in enumerate(converted_data):
     filename = 'data{}.yaml'.format(i)
     with open(filename,'w') as f:
