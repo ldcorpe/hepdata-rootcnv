@@ -1,14 +1,14 @@
 - name: MyName
   dependent_variables:
-    - header: { name: Asymmetry, units: 'Bla'}
+    - header: {name: Asymmetry, units: 'Bla'}
       conversion: {
-        inputs: { nominal: 'input.root:nominal_histo', up: 'input.root:syst_up', down: 'input.root:syst_down'},
+        inputs: {nominal: 'input.root:nominal_histo', up: 'input.root:syst_up', down: 'input.root:syst_down'},
         formatter: nominal_with_variations_formatter,
         formatter_args: {label: syst}
       }
-    - header: { name: Another Var, units: 'A Unit'}
+    - header: {name: Another Var, units: 'A Unit'}
       conversion: {
-        inputs: {'nominal':'input.root:data1'},
+        inputs: {nominal: 'input.root:data1'},
         formatter: standard_format,
         formatter_args: {error_config: asymmetric, label: lumi}
       }
@@ -22,14 +22,14 @@
           value: 100
           units: Hertz
       conversion: {
-        inputs: {'histo':'input.root:data2'},
+        inputs: {histo: 'input.root:data2'},
         formatter: standard_format,
-        formatter_args: {'error_config':'symmetric','label':'stat'}
+        formatter_args: {error_config: symmetric, label: stat}
       }
   independent_variables:
     - header: {name: x1, units: GeV}
       conversion: {
         formatter: bin_format,
-        formatter_args: { style: 'central_value'}
+        formatter_args: {style: 'central_value'}
       }
     - header: {name: x2, units: MeV}
