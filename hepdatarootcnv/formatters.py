@@ -16,3 +16,10 @@ def nominal_with_variations_formatter(bin_info_dep,**kwargs):
     {'asymerror':{'minus':down-nom,'plus':up-nom},
      'label':kwargs['label']}
    ]}
+   
+def bin_format(indep_info,**kwargs):
+  style = kwargs.get('style',None)
+  if style=='central_value':
+    return {'value':(indep_info['low']+indep_info['width'])/2.}
+  else:
+    return {'low':indep_info['low'], 'high':indep_info['low']+indep_info['width']}

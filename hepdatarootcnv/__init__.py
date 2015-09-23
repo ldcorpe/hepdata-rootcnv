@@ -3,6 +3,7 @@
 import ROOT
 import yaml
 import itertools
+import formatters
 
 def _get_maxdim(histo):
   classname = histo.ClassName()
@@ -24,10 +25,10 @@ def _extract_bin_info(inputsdict,x,z,y,maxdim):
   for axis,axisbin in [(rep.GetXaxis(),x),(rep.GetYaxis(),y),(rep.GetZaxis(),z)]:
     low = axis.GetBinLowEdge(axisbin)
     width = axis.GetBinWidth(axisbin)
-    indep_storage += [{'low':low,'high':low+width}]
+    indep_storage += [{'low':low,'width':low+width}]
   return {'indep':indep_storage[0:maxdim],'dep':dep_vals}
 
-def _format_all_bins(inputsdict,formatter,**kwargs):
+def _collect_all_bins(inputsdict,):
   rep = inputsdict.values()[0]
   bin_ranges = [range(1,n+1) for n in [rep.GetNbinsX(),rep.GetNbinsY(),rep.GetNbinsZ()]]
   ndim = _get_maxdim(rep)
@@ -35,24 +36,25 @@ def _format_all_bins(inputsdict,formatter,**kwargs):
   formatted = []
   for x,y,z in itertools.product(*bin_ranges):
     bin_info = _extract_bin_info(inputsdict,x,z,y,ndim)
-    formatted += [(bin_info['indep'], formatter(bin_info['dep'],**kwargs))]
+    formatted += [(bin_info['indep'], bin_info['dep'])]
 
   return formatted
 
 def convertROOT(table_definition):
-  formatted_transposed = []
+  collected_transposed = []
   for col_def in table_definition['dependent_variables']:
-    conversion = col_def.pop('conversion')
-    formatted = _format_all_bins(conversion['inputs'],conversion['formatter'],**conversion['formatter_args'])
-    formatted_transposed +=[zip(*formatted)]
+    collected = _collect_all_bins(col_def['conversion']['inputs'])
+    collected_transposed +=[zip(*collected)]
   
   #take indep values from histo describing first column
-  indep_val_lists = zip(*formatted_transposed[0][0])
-  for indep,val_list in zip(table_definition['independent_variables'],indep_val_lists):
-    indep['values'] = list(val_list)
+  indep_val_lists = zip(*collected_transposed[0][0])
+  for indep_def,val_list in zip(table_definition['independent_variables'],indep_val_lists):
+    conversion = indep_def.pop('conversion') if 'conversion' in indep_def else {'formatter':formatters.bin_format}
+    indep_def['values'] = list(conversion['formatter'](x,**conversion.get('formatter_args',{})) for x in val_list)
   
   all_column_data = []
-  for col_def,column_data in zip(table_definition['dependent_variables'],formatted_transposed):
-    col_def['values'] = list(column_data[1])
+  for col_def,column_data in zip(table_definition['dependent_variables'],collected_transposed):
+    conversion = col_def.pop('conversion')
+    col_def['values'] = list(conversion['formatter'](x,**conversion.get('formatter_args',{})) for x in column_data[1])
   
   return table_definition

@@ -27,8 +27,12 @@ def converter(inputfile):
   for table in data:
     for dep in table['dependent_variables']:
       #load files and formatters
-      dep['conversion']['inputs'] = {k:get_root_object(v) for k,v in dep['conversion']['inputs'].iteritems()}
+      dep['conversion']['inputs']    = {k:get_root_object(v) for k,v in dep['conversion']['inputs'].iteritems()}
       dep['conversion']['formatter'] = getattr(formatters,dep['conversion']['formatter'])
+    for indep in table['independent_variables']:
+      if 'conversion' in indep:
+        indep['conversion']['formatter'] = getattr(formatters,indep['conversion']['formatter'])
+
     converted_data += [convertROOT(table)]
   
   for i,data in enumerate(converted_data):
