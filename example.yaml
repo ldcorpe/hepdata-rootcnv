@@ -22,9 +22,7 @@
           value: 100
           units: Hertz
       conversion: {
-        inputs: {histo: 'input.root:data2'},
-        formatter: standard_format,
-        formatter_args: {error_config: symmetric, label: stat}
+        inputs: {histo: 'input.root:data2'}
       }
   independent_variables:
     - header: {name: x1, units: GeV}

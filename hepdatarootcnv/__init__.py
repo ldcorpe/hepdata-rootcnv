@@ -28,17 +28,17 @@ def _extract_bin_info(inputsdict,x,z,y,maxdim):
     indep_storage += [{'low':low,'width':low+width}]
   return {'indep':indep_storage[0:maxdim],'dep':dep_vals}
 
-def _collect_all_bins(inputsdict,):
+def _collect_all_bins(inputsdict):
   rep = inputsdict.values()[0]
   bin_ranges = [range(1,n+1) for n in [rep.GetNbinsX(),rep.GetNbinsY(),rep.GetNbinsZ()]]
   ndim = _get_maxdim(rep)
 
-  formatted = []
+  value_collection = []
   for x,y,z in itertools.product(*bin_ranges):
     bin_info = _extract_bin_info(inputsdict,x,z,y,ndim)
-    formatted += [(bin_info['indep'], bin_info['dep'])]
+    value_collection += [(bin_info['indep'], bin_info['dep'])]
 
-  return formatted
+  return value_collection
 
 def convertROOT(table_definition):
   collected_transposed = []
@@ -49,12 +49,15 @@ def convertROOT(table_definition):
   #take indep values from histo describing first column
   indep_val_lists = zip(*collected_transposed[0][0])
   for indep_def,val_list in zip(table_definition['independent_variables'],indep_val_lists):
-    conversion = indep_def.pop('conversion') if 'conversion' in indep_def else {'formatter':formatters.bin_format}
+    standard_conversion = {'formatter':formatters.bin_format}
+    conversion = indep_def.pop('conversion') if 'conversion' in indep_def else standard_conversion
     indep_def['values'] = list(conversion['formatter'](x,**conversion.get('formatter_args',{})) for x in val_list)
   
   all_column_data = []
   for col_def,column_data in zip(table_definition['dependent_variables'],collected_transposed):
     conversion = col_def.pop('conversion')
-    col_def['values'] = list(conversion['formatter'](x,**conversion.get('formatter_args',{})) for x in column_data[1])
+    formatter = conversion.pop('formatter',formatters.standard_format)
+    formatter_args = conversion.pop('formatter_args',{})
+    col_def['values'] = list(formatter(x,**formatter_args) for x in column_data[1])
   
   return table_definition

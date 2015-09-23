@@ -33,10 +33,11 @@ def converter(inputfile,workdir):
 
   converted_data = []
   for table in data:
+    #load files and formatters
     for dep in table['dependent_variables']:
-      #load files and formatters
       dep['conversion']['inputs']    = {k:get_root_object(v) for k,v in dep['conversion']['inputs'].iteritems()}
-      dep['conversion']['formatter'] = getattr(formatters,dep['conversion']['formatter'])
+      if 'formatter' in dep['conversion']:
+        dep['conversion']['formatter'] = getattr(formatters,dep['conversion']['formatter'])
     for indep in table['independent_variables']:
       if 'conversion' in indep:
         indep['conversion']['formatter'] = getattr(formatters,indep['conversion']['formatter'])
