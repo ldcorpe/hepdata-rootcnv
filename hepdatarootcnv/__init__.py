@@ -18,7 +18,7 @@ def _extract_values_bin(histo,x,y,z,maxdim):
   value_data.update(**error_data)
   return value_data
 
-def _extract_bin_info(inputsdict,x,z,y,maxdim):
+def _extract_bin_info(inputsdict,x,y,z,maxdim):
   dep_vals = {k:_extract_values_bin(h,x,y,z,maxdim) for k,h in inputsdict.iteritems()}
   indep_storage = []
   rep = inputsdict.values()[0]
@@ -35,9 +35,8 @@ def _collect_all_bins(inputsdict):
 
   value_collection = []
   for x,y,z in itertools.product(*bin_ranges):
-    bin_info = _extract_bin_info(inputsdict,x,z,y,ndim)
+    bin_info = _extract_bin_info(inputsdict,x,y,z,ndim)
     value_collection += [(bin_info['indep'], bin_info['dep'])]
-
   return value_collection
 
 def convertROOT(table_definition):
@@ -46,7 +45,7 @@ def convertROOT(table_definition):
     collected = _collect_all_bins(col_def['conversion']['inputs'])
     collected_transposed +=[zip(*collected)]
   
-  #take indep values from histo describing first column
+  #take indep values from first column data
   indep_val_lists = zip(*collected_transposed[0][0])
   for indep_def,val_list in zip(table_definition['independent_variables'],indep_val_lists):
     standard_conversion = {'formatter':formatters.bin_format}
