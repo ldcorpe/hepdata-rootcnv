@@ -31,7 +31,7 @@ def converter(inputfile,workdir):
   if workdir:
     os.chdir(os.path.abspath(workdir))
 
-  converted_data = []
+  converted_tables = []
   for table in data:
     #load files and formatters
     for dep in table['dependent_variables']:
@@ -42,10 +42,10 @@ def converter(inputfile,workdir):
       if 'conversion' in indep:
         indep['conversion']['formatter'] = getattr(formatters,indep['conversion']['formatter'])
 
-    converted_data += [convertROOT(table)]
+    converted_tables += [convertROOT(table)]
   
   os.chdir(original_dir)
-  for i,data in enumerate(converted_data):
+  for i,data in enumerate(converted_tables):
     filename = 'data{}.yaml'.format(i)
     with open(filename,'w') as f:
       click.secho('writing {}'.format(filename), fg = 'green')
