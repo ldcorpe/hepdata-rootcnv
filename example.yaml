@@ -1,29 +1,57 @@
-- name: MyName
-  dependent_variables:
-    - header: {name: Asymmetry, units: 'Bla'}
-      conversion: {
-        inputs: {nominal: 'input.root:nominal_histo', up: 'input.root:syst_up', down: 'input.root:syst_down'},
-        formatter: nominal_with_variations_formatter,
-        formatter_args: {label: syst}
+ - name: variable1_histName
+   independent_variables:
+     - header: {name: '$\DR$', units: ''}
+   dependent_variables:
+     - header: {name: '$(1/\sigma)(d\sigma/d\DR)$', units: ''}
+       conversion: {
+        inputs: {
+           nominal: 'output.root:variable1_nominal' ,
+           stat_variable1_Stat: 'output.root:stat_variable1_Stat_up' ,
+           #for symmetric errors, one line with no suffix
+           sys_variable1_syst_1_up: 'output.root:sys_variable1_syst_1_up' ,
+           sys_variable1_syst_1_dn: 'output.root:sys_variable1_syst_1_dn' ,
+           # for asymetric errors, specify one line with suffix _up and one with suffix _dn
+           # use prefix 'stat_' for stat uncertainties, or if uncorrelated between bins
+           # use prefix 'sys_' for exp uncertainties, or if correlated between bins
+         },
+         formatter: nominal_with_multiple_variations_formatter,
+         formatter_args: {
+           error_type: relative,
+           # relative for uncertainty=nom*syst1
+           # absolute for uncertainty=nom+syst1
+           # exact for uncertainty=syst1
+           error_multiplier: 0.01,
+           #for errors stored as percentage, 1 otherwise!
+         } #
       }
-    - header: {name: Another Var, units: 'A Unit'}
-      conversion: {
-        inputs: {nominal: 'input.root:data1'},
-        formatter: standard_format,
-        formatter_args: {error_config: asymmetric, label: lumi}
-      }
-  independent_variables:
-    - header: {name: x1, units: GeV}
-- name: My2DHisto
-  dependent_variables:
-    - header: {name: two dim, units: 'some_units'}
-      qualifiers:
-        - name: the_qual
-          value: 100
-          units: Hertz
-      conversion: {
-        inputs: {histo: 'input.root:data2'}
-      }
-  independent_variables:
-    - header: {name: x1, units: GeV}
-    - header: {name: x2, units: MeV}
+
+# Examples of other formatters
+#- name: MyName
+#  dependent_variables:
+#    - header: {name: Asymmetry, units: 'Bla'}
+#      conversion: {
+#        inputs: {nominal: 'input.root:nominal_histo', up: 'input.root:syst_up', down: 'input.root:syst_down'},
+#        formatter: nominal_with_variations_formatter,
+#        formatter_args: {label: syst}
+#      }
+#    - header: {name: Another Var, units: 'A Unit'}
+#      conversion: {
+#        inputs: {nominal: 'input.root:data1'},
+#        formatter: standard_format,
+#        formatter_args: {error_config: asymmetric, label: lumi}
+#      }
+#  independent_variables:
+#    - header: {name: x1, units: GeV}
+#- name: My2DHisto
+#  dependent_variables:
+#    - header: {name: two dim, units: 'some_units'}
+#      qualifiers:
+#        - name: the_qual
+#          value: 100
+#          units: Hertz
+#      conversion: {
+#        inputs: {histo: 'input.root:data2'}
+#      }
+#  independent_variables:
+#    - header: {name: x1, units: GeV}
+#    - header: {name: x2, units: MeV}
